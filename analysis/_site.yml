@@ -1,7 +1,7 @@
-name: "Denit_simulation"
+name: Denit_simulation
 output_dir: ../docs
 navbar:
-  title: "Denit_simulation"
+  title: Denit_simulation
   left:
   - text: Home
     href: index.html
@@ -9,6 +9,10 @@ navbar:
     href: about.html
   - text: License
     href: license.html
+  right:
+  - icon: fa-github
+    text: Source code
+    href: https://github.com/KiseokLee/Denit_simulation
 output:
   workflowr::wflow_html:
     toc: yes
