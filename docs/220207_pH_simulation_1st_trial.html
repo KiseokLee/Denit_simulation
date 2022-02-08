@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="KiseokLee" />
+
+<meta name="date" content="2022-02-07" />
+
+<title>220207_pH_simulation_1st_trial</title>
+
+<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Denit_simulation</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/KiseokLee/Denit_simulation">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">220207_pH_simulation_1st_trial</h1>
+<h4 class="author">KiseokLee</h4>
+<h4 class="date">2022-02-07</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2022-02-07
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>Denit_simulation/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20220207code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20220207)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20220207code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20220207)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomKiseokLeeDenitsimulationtreec4b6f8b358b3a7ee4c099cc5a2620d9c976fe13atargetblankc4b6f8ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/KiseokLee/Denit_simulation/tree/c4b6f8b358b3a7ee4c099cc5a2620d9c976fe13a" target="_blank">c4b6f8b</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomKiseokLeeDenitsimulationtreec4b6f8b358b3a7ee4c099cc5a2620d9c976fe13atargetblankc4b6f8ba" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/KiseokLee/Denit_simulation/tree/c4b6f8b358b3a7ee4c099cc5a2620d9c976fe13a" target="_blank">c4b6f8b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  data/consumer_resource_parameters_ADM.csv
+    Untracked:  data/consumer_resource_parameters_SDM.csv
+    Untracked:  tutorial_coupled_odes.pdf
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/220207_pH_simulation_1st_trial.Rmd</code>) and HTML (<code>docs/220207_pH_simulation_1st_trial.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/KiseokLee/Denit_simulation/blob/c4b6f8b358b3a7ee4c099cc5a2620d9c976fe13a/analysis/220207_pH_simulation_1st_trial.Rmd" target="_blank">c4b6f8b</a>
+</td>
+<td>
+KiseokLee
+</td>
+<td>
+2022-02-07
+</td>
+<td>
+wflow_publish(“analysis/220207_pH_simulation_1st_trial.Rmd”)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="denitrification-and-ph-perturbation-simulation-first-trial" class="section level2">
+<h2>220207 Denitrification and pH perturbation simulation first trial</h2>
+<p>Name: <strong>Kiseok Lee</strong><br />
+Date: 2/7/22<br />
+Lab: <strong>Seppe Kuehn lab</strong></p>
+</div>
+<div id="setting-up" class="section level2">
+<h2>1. Setting up</h2>
+</div>
+<div id="first-lets-set-up-the-consumer-resource-model-dynamics" class="section level2">
+<h2>1.1. First let’s set up the consumer resource model dynamics</h2>
+<pre class="r"><code>## Consumer resource model
+#&#39; @param x cell biomass (OD)
+#&#39; @param I nitrite concentration (mM)
+#&#39; @param A nitrate concentration (mM)
+#&#39; @param gamI biomass yields from nitrite (OD/mM)
+#&#39; @param gamA biomass yields from nitrate (OD/mM)
+#&#39; @param rI reduction rate of nitrite ((mM/OD)/h)
+#&#39; @param rA reduction rate of nitrate ((mM/OD)/h)
+#&#39; @param kI half velocity constant of nitrate reduction (mM)
+#&#39; @param kA half velocity constant of nitrate reduction (mM)
+
+# set up the Consumer Resource model
+# ode
+crGrowth &lt;- function(t, state, parameters) {
+    with(as.list(c(state, parameters)), {
+        # biomass
+        dx &lt;- (gamA * rA * (A/(kA + A)) +
+            gamI * rI * (I/(kI + I))) * x
+        # nitrate
+        dA &lt;- -rA * (A/(kA + A)) * x
+        # nitrite
+        dI &lt;- (rA * (A/(kA + A)) - rI * (I/(kI +
+            I))) * x
+        list(c(dx, dA, dI))
+    })  # end with(as.list ...
+}
+
+parameters &lt;- c(gamI = 0.01, rI = 1.6, gamA = 0.01,
+    rA = 3.1, kI = 0.01, kA = 0.01)
+parameters &lt;- c(gamI = 1, rI = 1, gamA = 1,
+    rA = 1, kI = 1, kA = 1)
+
+state &lt;- c(x = 2, A = 2, I = 0)
+
+times &lt;- seq(0, 10, by = 1)
+outc &lt;- ode(state, times, crGrowth, parameters,
+    method = &quot;lsoda&quot;, atol = 1e-04, rtol = 1e-04)
+outc</code></pre>
+<pre><code>   time        x             A             I
+1     0 2.000000  2.000000e+00  0.000000e+00
+2     1 4.530518  4.314895e-01  6.065030e-01
+3     2 5.971205  2.634032e-03  2.352718e-02
+4     3 5.999901  5.141715e-06  8.889920e-05
+5     4 6.000003 -1.521840e-07 -2.807206e-06
+6     5 6.000001 -4.045027e-08 -8.435248e-07
+7     6 6.000000 -5.779288e-09 -1.255200e-07
+8     7 6.000000 -8.256193e-10 -1.863979e-08
+9     8 6.000000 -1.179472e-10 -2.764095e-09
+10    9 6.000000 -1.684985e-11 -4.093402e-10
+11   10 6.000000 -2.407158e-12 -6.054445e-11</code></pre>
+<pre class="r"><code>plot(outc, xlab = &quot;time&quot;, ylab = &quot;-&quot;)
+plot(outc, xlab = &quot;Time (hr)&quot;, ylab = c(&quot;Biomass (OD)&quot;,
+    &quot;Nitrite (mM)&quot;, &quot;Nitrate (mM)&quot;), col = &quot;black&quot;,
+    type = &quot;l&quot;, lty = 1, pch = 19, lwd = 1,
+    main = &quot;Consumer Resource model&quot;)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-2-1.png" width="1056" style="display: block; margin: auto;" /><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-2-2.png" width="1056" style="display: block; margin: auto;" /></p>
+</div>
+<div id="enable-many-strains-community-level-dynamics" class="section level2">
+<h2>1.2. Enable many strains (community level dynamics)</h2>
+<pre class="r"><code># set up the Consumer Resource model
+# ode
+parameters = list(gamI = c(0.01, 0.02), rI = c(1.6,
+    1.5), gamA = c(0.01, 0.02), rA = c(3.1,
+    3.2), kI = c(0.01, 0.02), kA = c(0.01,
+    0.02))
+state = list(x = c(2, 3), A = 2, I = 0)
+
+crGrowth &lt;- function(t, state, parameters) {
+    with(as.list(c(state, parameters)), {
+
+        dx &lt;- (gamA * rA * (A/(kA + A)) +
+            gamI * rI * (I/(kI + I))) * x
+        print(paste0(&quot;dx: &quot;, dx))
+        # nitrate
+        dA &lt;- -rA * (A/(kA + A)) * x
+        print(paste0(&quot;dA: &quot;, dA))
+        # nitrite
+        dI &lt;- (rA * (A/(kA + A)) - rI * (I/(kI +
+            I))) * x
+        print(paste0(&quot;dI: &quot;, dI))
+        # print(paste0(&#39;return sum(dI):
+        # &#39;, sum(dI)))
+        # print(paste0(&#39;Please return
+        # the values in the same order
+        # as state variable&#39;))
+        list(c(dx, sum(dA), sum(dI)))
+    })  # end with(as.list ...
+}
+
+crGrowth(t = 1, state, parameters)</code></pre>
+<pre><code>[1] &quot;dx: 0.0616915422885572&quot; &quot;dx: 0.19009900990099&quot;  
+[1] &quot;dA: -6.16915422885572&quot; &quot;dA: -9.50495049504951&quot;
+[1] &quot;dI: 6.16915422885572&quot; &quot;dI: 9.50495049504951&quot;</code></pre>
+<pre><code>[[1]]
+[1]   0.06169154   0.19009901 -15.67410472  15.67410472</code></pre>
+<pre class="r"><code>crGrowth(t = 2, state, parameters)</code></pre>
+<pre><code>[1] &quot;dx: 0.0616915422885572&quot; &quot;dx: 0.19009900990099&quot;  
+[1] &quot;dA: -6.16915422885572&quot; &quot;dA: -9.50495049504951&quot;
+[1] &quot;dI: 6.16915422885572&quot; &quot;dI: 9.50495049504951&quot;</code></pre>
+<pre><code>[[1]]
+[1]   0.06169154   0.19009901 -15.67410472  15.67410472</code></pre>
+<pre class="r"><code>crGrowth(t = 3, state, parameters)</code></pre>
+<pre><code>[1] &quot;dx: 0.0616915422885572&quot; &quot;dx: 0.19009900990099&quot;  
+[1] &quot;dA: -6.16915422885572&quot; &quot;dA: -9.50495049504951&quot;
+[1] &quot;dI: 6.16915422885572&quot; &quot;dI: 9.50495049504951&quot;</code></pre>
+<pre><code>[[1]]
+[1]   0.06169154   0.19009901 -15.67410472  15.67410472</code></pre>
+<pre class="r"><code>crGrowth(t = 4, state, parameters)</code></pre>
+<pre><code>[1] &quot;dx: 0.0616915422885572&quot; &quot;dx: 0.19009900990099&quot;  
+[1] &quot;dA: -6.16915422885572&quot; &quot;dA: -9.50495049504951&quot;
+[1] &quot;dI: 6.16915422885572&quot; &quot;dI: 9.50495049504951&quot;</code></pre>
+<pre><code>[[1]]
+[1]   0.06169154   0.19009901 -15.67410472  15.67410472</code></pre>
+<pre class="r"><code># ODE solver
+times &lt;- seq(0, 10, by = 0.1)
+outc &lt;- ode(unlist(state), times, crGrowth,
+    parameters, method = &quot;vode&quot;, atol = 1e-04,
+    rtol = 1e-04)  # vode (variable-coefficient ODE solver), daspk(high order implicit solver for differential-algebraic equations) is best (give positive value)</code></pre>
+<pre><code>Error in eval(substitute(expr), data, enclos = parent.frame()): object &#39;x&#39; not found</code></pre>
+<pre class="r"><code>outc</code></pre>
+<pre><code>   time        x             A             I
+1     0 2.000000  2.000000e+00  0.000000e+00
+2     1 4.530518  4.314895e-01  6.065030e-01
+3     2 5.971205  2.634032e-03  2.352718e-02
+4     3 5.999901  5.141715e-06  8.889920e-05
+5     4 6.000003 -1.521840e-07 -2.807206e-06
+6     5 6.000001 -4.045027e-08 -8.435248e-07
+7     6 6.000000 -5.779288e-09 -1.255200e-07
+8     7 6.000000 -8.256193e-10 -1.863979e-08
+9     8 6.000000 -1.179472e-10 -2.764095e-09
+10    9 6.000000 -1.684985e-11 -4.093402e-10
+11   10 6.000000 -2.407158e-12 -6.054445e-11</code></pre>
+<pre class="r"><code># plot
+n_strains &lt;- length(state$x)
+plot(outc, xlab = &quot;time&quot;, ylab = &quot;&quot;)
+plot(outc, xlab = &quot;Time (hr)&quot;, ylab = c(rep(&quot;Biomass (OD)&quot;,
+    n_strains), &quot;Nitrate NO3- (mM)&quot;, &quot;Nitrite NO2- (mM)&quot;),
+    col = &quot;black&quot;, type = &quot;l&quot;, lty = 1, pch = 19,
+    lwd = 1, main = &quot;Consumer Resource model&quot;)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-3-1.png" width="1056" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>## test if it is correct just with
+## first component x1
+parameters1 = list(gamI = c(0.01), rI = c(1.6),
+    gamA = c(0.01), rA = c(3.1), kI = c(0.01),
+    kA = c(0.01))
+state1 = list(x = c(0.01), A = 2, I = 0)
+
+gamI = c(0.01)
+rI = c(1.6)
+gamA = c(0.01)
+rA = c(3.1)
+kI = c(0.01)
+kA = c(0.01)
+x = c(0.01)
+A = 2
+I = 0
+(gamA * rA * (A/(kA + A)) + gamI * rI * (I/(kI +
+    I))) * x</code></pre>
+<pre><code>[1] 0.0003084577</code></pre>
+<pre class="r"><code># set up the Consumer Resource model
+# ode
+crGrowth(t = 1, state1, parameters1)  # 0.06169154 -6.16915423  6.16915423</code></pre>
+<pre><code>[1] &quot;dx: 0.000308457711442786&quot;
+[1] &quot;dA: -0.0308457711442786&quot;
+[1] &quot;dI: 0.0308457711442786&quot;</code></pre>
+<pre><code>[[1]]
+[1]  0.0003084577 -0.0308457711  0.0308457711</code></pre>
+<pre class="r"><code># then with second compnent x2
+parameters2 = list(gamI = c(0.02), rI = c(1.5),
+    gamA = c(0.02), rA = c(3.2), kI = c(0.02),
+    kA = c(0.02))
+state2 = list(x = c(0.01), A = 2, I = 0)
+
+gamI = c(0.02)
+rI = c(1.5)
+gamA = c(0.02)
+rA = c(3.2)
+kI = c(0.02)
+kA = c(0.02)
+x = c(0.01)
+A = 2
+I = 0
+(gamA * rA * (A/(kA + A)) + gamI * rI * (I/(kI +
+    I))) * x</code></pre>
+<pre><code>[1] 0.0006336634</code></pre>
+<pre class="r"><code>crGrowth(t = 1, state2, parameters2)  # 0.190099 -9.504950  9.504950</code></pre>
+<pre><code>[1] &quot;dx: 0.000633663366336634&quot;
+[1] &quot;dA: -0.0316831683168317&quot;
+[1] &quot;dI: 0.0316831683168317&quot;</code></pre>
+<pre><code>[[1]]
+[1]  0.0006336634 -0.0316831683  0.0316831683</code></pre>
+<pre class="r"><code># sum up 0.06169154, 0.190099 -15.6741
+# 15.6741
+parameters = list(gamI = c(0.01, 0.02), rI = c(1.6,
+    1.5), gamA = c(0.01, 0.02), rA = c(3.1,
+    3.2), kI = c(0.01, 0.02), kA = c(0.01,
+    0.02))
+state = list(x = c(0.01, 0.01), A = 2, I = 0)
+crGrowth(t = 1, state, parameters)</code></pre>
+<pre><code>[1] &quot;dx: 0.000308457711442786&quot; &quot;dx: 0.000633663366336634&quot;
+[1] &quot;dA: -0.0308457711442786&quot; &quot;dA: -0.0316831683168317&quot;
+[1] &quot;dI: 0.0308457711442786&quot; &quot;dI: 0.0316831683168317&quot;</code></pre>
+<pre><code>[[1]]
+[1]  0.0003084577  0.0006336634 -0.0625289395  0.0625289395</code></pre>
+<pre class="r"><code>parameters3 = list(gamI = c(0.01, 0.02, 0.03),
+    rI = c(1.6, 1.5, 1.2), gamA = c(0.01,
+        0.02, 0.03), rA = c(3.1, 3.2, 2),
+    kI = rep(0.01, 3), kA = rep(0.01, 3))
+state3 = list(x = c(1, 1, 1), A = 2, I = 0)
+crGrowth(t = 1, state3, parameters3)</code></pre>
+<pre><code>[1] &quot;dx: 0.0308457711442786&quot; &quot;dx: 0.063681592039801&quot;  &quot;dx: 0.0597014925373134&quot;
+[1] &quot;dA: -3.08457711442786&quot; &quot;dA: -3.18407960199005&quot; &quot;dA: -1.99004975124378&quot;
+[1] &quot;dI: 3.08457711442786&quot; &quot;dI: 3.18407960199005&quot; &quot;dI: 1.99004975124378&quot;</code></pre>
+<pre><code>[[1]]
+[1]  0.03084577  0.06368159  0.05970149 -8.25870647  8.25870647</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-3-2.png" width="1056" style="display: block; margin: auto;" /> The new crGrowth function seems to be doing a good job summing up all dA/dt from x1, x2.</p>
+</div>
+<div id="lets-simulate-a-community" class="section level2">
+<h2>1.3. Let’s simulate a community</h2>
+<p>Let’s say we have n strains</p>
+<pre class="r"><code># set up the Consumer Resource model ode
+crGrowth &lt;- function(t,state, parameters ) {
+  with(as.list(c(state, parameters)),{
+    dx &lt;- (gamA*rA*(A/(kA + A))+gamI*rI*(I/(kI + I))) *x
+    # nitrate
+    dA &lt;- - rA*(A/(kA + A)) *x
+    # nitrite
+    dI &lt;- ( rA*(A/(kA + A)) - rI*(I/(kI + I)) ) *x
+    # print(paste0(&quot;dI: &quot;,dI))
+    # print(paste0(&quot;return sum(dI): &quot;, sum(dI)))
+    # print(paste0(&quot;Please return the values in the same order as state variable&quot;))
+    list( c(dx, sum(dA), sum(dI)) )
+  }) # end with(as.list ...
+}
+
+## as in Karna&#39;s paper, fix kI and kA = 0.01 mM
+## First, use random distribution
+## 10 strains
+## gamI, gamA max is 0.02 (from Karna&#39;s paper)
+## rI, rA max is 15 (from Karna&#39;s paper)
+k = 10
+parameters = list(gamI=runif(k, 0, 0.02), rI =runif(k, 0, 15), gamA= runif(k, 0, 0.02), rA = runif(k, 0, 15), kI = rep(0.01, k), kA = rep(0.01, k))
+# same biomass 1
+state = list(x = rep(1,k), A = 2, I = 0)
+
+# hist(rpois(1000, lambda = 4))
+
+crGrowth(t=1, state, parameters)</code></pre>
+<pre><code>[[1]]
+ [1]   0.05220551   0.06907645   0.09878032   0.23057939   0.04341638
+ [6]   0.02864577   0.13992084   0.01342281   0.10768042   0.12144893
+[11] -84.30047879  84.30047879</code></pre>
+<pre class="r"><code># ODE solver
+times &lt;- seq(0, 10, by = 0.1)
+outc &lt;- ode(unlist(state), times, crGrowth, parameters, method = &quot;vode&quot;, atol = 1e-4, rtol = 1e-4) # vode (variable-coefficient ODE solver), daspk(high order implicit solver for differential-algebraic equations) is best (give positive value)
+outc</code></pre>
+<pre><code>    time       x1       x2       x3       x4       x5       x6       x7
+1    0.0 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000
+2    0.1 1.000106 1.000072 1.000176 1.000246 1.000126 1.000060 1.000166
+3    0.2 1.000229 1.000144 1.000376 1.000496 1.000278 1.000129 1.000340
+4    0.3 1.000356 1.000217 1.000581 1.000747 1.000436 1.000201 1.000516
+5    0.4 1.000485 1.000289 1.000789 1.000999 1.000597 1.000273 1.000692
+6    0.5 1.000615 1.000362 1.000999 1.001251 1.000761 1.000347 1.000870
+7    0.6 1.000746 1.000435 1.001211 1.001504 1.000925 1.000421 1.001047
+8    0.7 1.000878 1.000508 1.001424 1.001756 1.001091 1.000495 1.001226
+9    0.8 1.001010 1.000581 1.001637 1.002009 1.001258 1.000570 1.001404
+10   0.9 1.001143 1.000653 1.001851 1.002261 1.001425 1.000645 1.001582
+11   1.0 1.001276 1.000726 1.002065 1.002514 1.001593 1.000720 1.001761
+12   1.1 1.001409 1.000799 1.002279 1.002766 1.001761 1.000796 1.001939
+13   1.2 1.001543 1.000872 1.002494 1.003019 1.001929 1.000871 1.002118
+14   1.3 1.001676 1.000944 1.002708 1.003271 1.002097 1.000946 1.002296
+15   1.4 1.001810 1.001017 1.002924 1.003523 1.002266 1.001022 1.002474
+16   1.5 1.001944 1.001089 1.003139 1.003775 1.002435 1.001097 1.002653
+17   1.6 1.002078 1.001162 1.003354 1.004026 1.002604 1.001173 1.002831
+18   1.7 1.002211 1.001234 1.003569 1.004277 1.002774 1.001249 1.003009
+19   1.8 1.002345 1.001306 1.003785 1.004528 1.002943 1.001324 1.003187
+20   1.9 1.002479 1.001378 1.003999 1.004777 1.003112 1.001400 1.003364
+21   2.0 1.002613 1.001449 1.004214 1.005026 1.003282 1.001476 1.003541
+22   2.1 1.002746 1.001520 1.004428 1.005273 1.003451 1.001551 1.003716
+23   2.2 1.002878 1.001590 1.004640 1.005516 1.003619 1.001626 1.003889
+24   2.3 1.003009 1.001658 1.004849 1.005752 1.003786 1.001700 1.004058
+25   2.4 1.003134 1.001717 1.005046 1.005960 1.003947 1.001770 1.004210
+26   2.5 1.003226 1.001735 1.005183 1.006027 1.004083 1.001823 1.004277
+27   2.6 1.003308 1.001739 1.005301 1.006050 1.004208 1.001870 1.004316
+28   2.7 1.003389 1.001742 1.005416 1.006073 1.004332 1.001917 1.004355
+29   2.8 1.003466 1.001746 1.005526 1.006095 1.004451 1.001961 1.004393
+30   2.9 1.003531 1.001749 1.005618 1.006113 1.004550 1.001998 1.004424
+31   3.0 1.003545 1.001750 1.005639 1.006117 1.004572 1.002006 1.004430
+32   3.1 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+33   3.2 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+34   3.3 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+35   3.4 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+36   3.5 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+37   3.6 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+38   3.7 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+39   3.8 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+40   3.9 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+41   4.0 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+42   4.1 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+43   4.2 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+44   4.3 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+45   4.4 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+46   4.5 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+47   4.6 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+48   4.7 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+49   4.8 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+50   4.9 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+51   5.0 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+52   5.1 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+53   5.2 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+54   5.3 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+55   5.4 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+56   5.5 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+57   5.6 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+58   5.7 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+59   5.8 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+60   5.9 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+61   6.0 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+62   6.1 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+63   6.2 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+64   6.3 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+65   6.4 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+66   6.5 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+67   6.6 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+68   6.7 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+69   6.8 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+70   6.9 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+71   7.0 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+72   7.1 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+73   7.2 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+74   7.3 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+75   7.4 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+76   7.5 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+77   7.6 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+78   7.7 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+79   7.8 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+80   7.9 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+81   8.0 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+82   8.1 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+83   8.2 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+84   8.3 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+85   8.4 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+86   8.5 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+87   8.6 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+88   8.7 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+89   8.8 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+90   8.9 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+91   9.0 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+92   9.1 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+93   9.2 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+94   9.3 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+95   9.4 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+96   9.5 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+97   9.6 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+98   9.7 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+99   9.8 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+100  9.9 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+101 10.0 1.003545 1.001750 1.005639 1.006117 1.004572 1.002007 1.004430
+          x8       x9      x10             A             I
+1   1.000000 1.000000 1.000000  2.000000e+00  0.000000e+00
+2   1.000037 1.000145 1.000122  1.915709e+00  3.750717e-02
+3   1.000081 1.000302 1.000243  1.831437e+00  6.032474e-02
+4   1.000126 1.000461 1.000365  1.747185e+00  7.999357e-02
+5   1.000172 1.000622 1.000486  1.662958e+00  9.778004e-02
+6   1.000219 1.000784 1.000608  1.578756e+00  1.142848e-01
+7   1.000267 1.000946 1.000730  1.494583e+00  1.298676e-01
+8   1.000314 1.001109 1.000851  1.410441e+00  1.447906e-01
+9   1.000362 1.001272 1.000972  1.326335e+00  1.592457e-01
+10  1.000411 1.001435 1.001094  1.242268e+00  1.733447e-01
+11  1.000459 1.001599 1.001215  1.158247e+00  1.871849e-01
+12  1.000507 1.001762 1.001336  1.074278e+00  2.008002e-01
+13  1.000555 1.001926 1.001458  9.903712e-01  2.141628e-01
+14  1.000604 1.002089 1.001579  9.065367e-01  2.272382e-01
+15  1.000652 1.002253 1.001699  8.227880e-01  2.400234e-01
+16  1.000701 1.002417 1.001820  7.391434e-01  2.525286e-01
+17  1.000750 1.002581 1.001941  6.556278e-01  2.647631e-01
+18  1.000798 1.002744 1.002061  5.722764e-01  2.767234e-01
+19  1.000847 1.002908 1.002181  4.891407e-01  2.883842e-01
+20  1.000896 1.003071 1.002301  4.062929e-01  2.996956e-01
+21  1.000944 1.003233 1.002420  3.238661e-01  3.105479e-01
+22  1.000993 1.003395 1.002538  2.421076e-01  3.207073e-01
+23  1.001041 1.003555 1.002654  1.615856e-01  3.296438e-01
+24  1.001089 1.003712 1.002767  8.373145e-02  3.358859e-01
+25  1.001135 1.003855 1.002864  1.629269e-02  3.316688e-01
+26  1.001173 1.003933 1.002888  1.902995e-04  2.760688e-01
+27  1.001209 1.003990 1.002888  6.651754e-05  2.051377e-01
+28  1.001243 1.004046 1.002888  1.515431e-05  1.353256e-01
+29  1.001277 1.004100 1.002889  3.880799e-06  6.818587e-02
+30  1.001304 1.004144 1.002889  8.812929e-08  1.234461e-02
+31  1.001310 1.004154 1.002889  2.491591e-08  1.020227e-04
+32  1.001310 1.004154 1.002889  1.494403e-08 -7.039093e-05
+33  1.001310 1.004154 1.002889  6.512810e-09 -1.993413e-05
+34  1.001310 1.004154 1.002889 -1.103733e-09 -1.884303e-05
+35  1.001310 1.004154 1.002889 -1.106437e-09  9.272584e-06
+36  1.001310 1.004154 1.002889 -1.569239e-10  4.228301e-06
+37  1.001310 1.004154 1.002889  2.394218e-11  1.795229e-06
+38  1.001310 1.004154 1.002889  4.312639e-12  4.864390e-07
+39  1.001310 1.004154 1.002889  4.559377e-13  1.918768e-07
+40  1.001310 1.004154 1.002889  4.820216e-14  3.902330e-08
+41  1.001310 1.004154 1.002889  5.095977e-15  1.987150e-08
+42  1.001310 1.004154 1.002889  5.387514e-16  2.578928e-09
+43  1.001310 1.004154 1.002889  5.695729e-17  2.235169e-09
+44  1.001310 1.004154 1.002889  6.021578e-18  5.751520e-11
+45  1.001310 1.004154 1.002889  6.366068e-19  2.798188e-10
+46  1.001310 1.004154 1.002889  6.730266e-20 -2.685977e-11
+47  1.001310 1.004154 1.002889  7.115299e-21  3.919650e-11
+48  1.001310 1.004154 1.002889  7.522360e-22 -8.243614e-12
+49  1.001310 1.004154 1.002889  7.952708e-23  6.038903e-12
+50  1.001310 1.004154 1.002889  8.407677e-24 -1.796926e-12
+51  1.001310 1.004154 1.002889  8.888673e-25  9.948716e-13
+52  1.001310 1.004154 1.002889  9.397188e-26 -3.523489e-13
+53  1.001310 1.004154 1.002889  9.934794e-27  1.707908e-13
+54  1.001310 1.004154 1.002889  1.050316e-27 -6.611774e-14
+55  1.001310 1.004154 1.002889  1.110403e-28  3.000880e-14
+56  1.001310 1.004154 1.002889  1.173929e-29 -1.215726e-14
+57  1.001310 1.004154 1.002889  1.241088e-30  5.338788e-15
+58  1.001310 1.004154 1.002889  1.312090e-31 -2.213483e-15
+59  1.001310 1.004154 1.002889  1.387154e-32  9.560043e-16
+60  1.001310 1.004154 1.002889  1.466512e-33 -4.010485e-16
+61  1.001310 1.004154 1.002889  1.550410e-34  1.717628e-16
+62  1.001310 1.004154 1.002889  1.639107e-35 -7.248626e-17
+63  1.001310 1.004154 1.002889  1.732879e-36  3.091292e-17
+64  1.001310 1.004154 1.002889  1.832016e-37 -1.308517e-17
+65  1.001310 1.004154 1.002889  1.936824e-38  5.568369e-18
+66  1.001310 1.004154 1.002889  2.047629e-39 -2.360656e-18
+67  1.001310 1.004154 1.002889  2.164772e-40  1.003477e-18
+68  1.001310 1.004154 1.002889  2.288617e-41 -4.257448e-19
+69  1.001310 1.004154 1.002889  2.419547e-42  1.808773e-19
+70  1.001310 1.004154 1.002889  2.557967e-43 -7.677091e-20
+71  1.001310 1.004154 1.002889  2.704307e-44  3.260692e-20
+72  1.001310 1.004154 1.002889  2.859018e-45 -1.384232e-20
+73  1.001310 1.004154 1.002889  3.022580e-46  5.878418e-21
+74  1.001310 1.004154 1.002889  3.195500e-47 -2.495764e-21
+75  1.001310 1.004154 1.002889  3.378312e-48  1.059800e-21
+76  1.001310 1.004154 1.002889  3.571583e-49 -4.499757e-22
+77  1.001310 1.004154 1.002889  3.775910e-50  1.910704e-22
+78  1.001310 1.004154 1.002889  3.991008e-51 -4.614929e-22
+79  1.001310 1.004154 1.002889  4.213391e-52 -5.492023e-23
+80  1.001310 1.004154 1.002889  4.448167e-53 -6.535814e-24
+81  1.001310 1.004154 1.002889  4.696024e-54 -7.777984e-25
+82  1.001310 1.004154 1.002889  4.957691e-55 -9.256235e-26
+83  1.001310 1.004154 1.002889  5.233940e-56 -1.101544e-26
+84  1.001310 1.004154 1.002889  5.525581e-57 -1.310898e-27
+85  1.001310 1.004154 1.002889  5.833473e-58 -1.560042e-28
+86  1.001310 1.004154 1.002889  6.158521e-59 -1.856537e-29
+87  1.001310 1.004154 1.002889  6.501681e-60 -2.209383e-30
+88  1.001310 1.004154 1.002889  6.863962e-61 -2.629289e-31
+89  1.001310 1.004154 1.002889  7.246430e-62 -3.129001e-32
+90  1.001310 1.004154 1.002889  7.650209e-63 -3.723686e-33
+91  1.001310 1.004154 1.002889  8.076488e-64 -4.431394e-34
+92  1.001310 1.004154 1.002889  8.526519e-65 -5.273606e-35
+93  1.001310 1.004154 1.002889  9.001627e-66 -6.275886e-36
+94  1.001310 1.004154 1.002889  9.503208e-67 -7.468654e-37
+95  1.001310 1.004154 1.002889  1.003274e-67 -8.888115e-38
+96  1.001310 1.004154 1.002889  1.059177e-68 -1.057735e-38
+97  1.001310 1.004154 1.002889  1.118196e-69 -1.258764e-39
+98  1.001310 1.004154 1.002889  1.180503e-70 -1.498000e-40
+99  1.001310 1.004154 1.002889  1.246282e-71 -1.782703e-41
+100 1.001310 1.004154 1.002889  1.315726e-72 -2.121516e-42
+101 1.001310 1.004154 1.002889  1.389040e-73 -2.524723e-43</code></pre>
+<pre class="r"><code># plot
+n_strains &lt;- length(state$x)
+plot(outc, xlab = &quot;time&quot;, ylab = &quot;&quot;)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-4-1.png" width="1056" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot(outc, xlab=&quot;Time (hr)&quot;, ylab=c(rep(&quot;Biomass (OD)&quot;,n_strains),&quot;Nitrate NO3- (mM)&quot;,&quot;Nitrite NO2- (mM)&quot;), col=&#39;black&#39;, type = &quot;l&quot;,lty = 1, pch=19,lwd=1, main=&quot;Consumer Resource model&quot;)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-4-2.png" width="1056" style="display: block; margin: auto;" /><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-4-3.png" width="1056" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># using ggplot to get 3 graphs
+colnames(outc)</code></pre>
+<pre><code> [1] &quot;time&quot; &quot;x1&quot;   &quot;x2&quot;   &quot;x3&quot;   &quot;x4&quot;   &quot;x5&quot;   &quot;x6&quot;   &quot;x7&quot;   &quot;x8&quot;   &quot;x9&quot;  
+[11] &quot;x10&quot;  &quot;A&quot;    &quot;I&quot;   </code></pre>
+<pre class="r"><code>class(outc)</code></pre>
+<pre><code>[1] &quot;deSolve&quot; &quot;matrix&quot; </code></pre>
+<pre class="r"><code>df_out &lt;- as.data.frame(outc)
+head(df_out)</code></pre>
+<pre><code>  time       x1       x2       x3       x4       x5       x6       x7       x8
+1  0.0 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000
+2  0.1 1.000106 1.000072 1.000176 1.000246 1.000126 1.000060 1.000166 1.000037
+3  0.2 1.000229 1.000144 1.000376 1.000496 1.000278 1.000129 1.000340 1.000081
+4  0.3 1.000356 1.000217 1.000581 1.000747 1.000436 1.000201 1.000516 1.000126
+5  0.4 1.000485 1.000289 1.000789 1.000999 1.000597 1.000273 1.000692 1.000172
+6  0.5 1.000615 1.000362 1.000999 1.001251 1.000761 1.000347 1.000870 1.000219
+        x9      x10        A          I
+1 1.000000 1.000000 2.000000 0.00000000
+2 1.000145 1.000122 1.915709 0.03750717
+3 1.000302 1.000243 1.831437 0.06032474
+4 1.000461 1.000365 1.747185 0.07999357
+5 1.000622 1.000486 1.662958 0.09778004
+6 1.000784 1.000608 1.578756 0.11428480</code></pre>
+<pre class="r"><code>df_out &lt;- melt(df_out, id.vars = c(&quot;time&quot;))
+dim(df_out)</code></pre>
+<pre><code>[1] 1212    3</code></pre>
+<pre class="r"><code>df_com &lt;- df_out %&gt;% filter(!(variable %in% c(&quot;A&quot;,&quot;I&quot;)))
+dim(df_com)</code></pre>
+<pre><code>[1] 1010    3</code></pre>
+<pre class="r"><code>tail(df_com)</code></pre>
+<pre><code>     time variable    value
+1005  9.5      x10 1.002889
+1006  9.6      x10 1.002889
+1007  9.7      x10 1.002889
+1008  9.8      x10 1.002889
+1009  9.9      x10 1.002889
+1010 10.0      x10 1.002889</code></pre>
+<pre class="r"><code>df_ai &lt;- df_out %&gt;% filter(variable %in% c(&quot;A&quot;,&quot;I&quot;))
+dim(df_ai)</code></pre>
+<pre><code>[1] 202   3</code></pre>
+<pre class="r"><code># plot strain dynamics
+names(df_com)[2] &lt;- &quot;Strain&quot; 
+
+p_strain &lt;- ggplot(df_com, aes(x=time, y=value, color=Strain, group=Strain)) +
+  # geom_point(size=2.5, shape=16) +
+  geom_line(size=1.2)+
+  # scale_colour_gradientn(colours = col_pH(100)) +
+  # scale_color_manual(values=grad_pH) +
+  ylab(&quot;Biomass (OD) \n&quot;) +
+  xlab(&quot;\n Time (hr)&quot;) +
+  # scale_y_continuous(breaks = seq(0,0.3,0.05), limits=c(0, 0.3))+
+  expand_limits(y=0) +
+  ggtitle(&quot;Consumer-resource model community dynamics \n&quot;) +
+  # label
+  # geom_text(aes(label = round(Ave_NO3_mM,3)), size = 3, vjust = -1.5, family=&quot;serif&quot;, show.legend = FALSE)+
+  mytheme_2d
+  # facet_grid(. ~ Soil) +
+  # theme(strip.background = element_rect(colour=&quot;black&quot;, fill=&quot;white&quot;, size=0.1))
+
+p_strain
+
+# plot nitrate, nitrite
+names(df_ai)[2] &lt;- &quot;Metabolite&quot;
+df_ai$Metabolite &lt;- ifelse(df_ai$Metabolite == &quot;A&quot;, &quot;Nitrate (NO3-)&quot;, &quot;Nitrite (NO2-)&quot;)
+
+p_ai &lt;- ggplot(df_ai, aes(x=time, y=value, color=Metabolite, group=Metabolite)) +
+  # geom_point(size=2.5, shape=16) +
+  geom_line(size=1.2)+
+  # scale_colour_gradientn(colours = col_pH(100)) +
+  scale_color_manual(values=c(&quot;#3958ab&quot;,&quot;#ad4620&quot;)) + ## blue = nitrate, red = nitrite
+  ylab(&quot;Nitrate or Nitrite (mM) \n&quot;) +
+  xlab(&quot;\n Time (hr)&quot;) +
+  # scale_y_continuous(breaks = seq(0,0.3,0.05), limits=c(0, 0.3))+
+  # expand_limits(y=0) +
+  ggtitle(&quot;Metabolite dynamics \n&quot;) +
+  # label
+  # geom_text(aes(label = round(Ave_NO3_mM,3)), size = 3, vjust = -1.5, family=&quot;serif&quot;, show.legend = FALSE)+
+  mytheme_2d
+  # facet_grid(. ~ Soil) +
+  # theme(strip.background = element_rect(colour=&quot;black&quot;, fill=&quot;white&quot;, size=0.1))
+p_ai
+
+df_i &lt;- df_ai %&gt;% filter(Metabolite == &quot;Nitrite (NO2-)&quot;)
+p_nitrite &lt;- ggplot(df_i, aes(x=time, y=value, color=Metabolite, group=Metabolite)) +
+  # geom_point(size=2.5, shape=16) +
+  geom_line(size=1.2)+
+  # scale_colour_gradientn(colours = col_pH(100)) +
+  scale_color_manual(values=c(&quot;#ad4620&quot;)) + ## blue = nitrate, red = nitrite
+  ylab(&quot;Nitrite (mM) \n&quot;) +
+  xlab(&quot;\n Time (hr)&quot;) +
+  # scale_y_continuous(breaks = seq(0,0.3,0.05), limits=c(0, 0.3))+
+  # expand_limits(y=0) +
+  ggtitle(&quot;Nitrite close-up dynamics \n&quot;) +
+  # label
+  # geom_text(aes(label = round(Ave_NO3_mM,3)), size = 3, vjust = -1.5, family=&quot;serif&quot;, show.legend = FALSE)+
+  mytheme_2d
+  # facet_grid(. ~ Soil) +
+  # theme(strip.background = element_rect(colour=&quot;black&quot;, fill=&quot;white&quot;, size=0.1))
+p_nitrite
+
+require(gridExtra)
+grid.arrange(p_strain, p_ai, p_nitrite, nrow=1)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-4-4.png" width="1056" style="display: block; margin: auto;" /></p>
+</div>
+<div id="wrap-this-into-a-function" class="section level2">
+<h2>1.4. Wrap this into a function</h2>
+<pre class="r"><code># plot community dynamics, metabolite, nitrite close up
+
+## as in Karna&#39;s paper, fix kI and kA = 0.01 mM
+## First, use random distribution
+## 10 strains
+## gamI, gamA max is 0.02 (from Karna&#39;s paper)
+## rI, rA max is 15 (from Karna&#39;s paper)
+k = 10 # number of strains in a community
+parameters = list(gamI=runif(k, 0, 0.02), rI =runif(k, 0, 15), gamA= runif(k, 0, 0.02), rA = runif(k, 0, 15), kI = rep(0.01, k), kA = rep(0.01, k))
+# same biomass 1
+state = list(x = rep(1,k), A = 2, I = 0)
+# hist(rpois(1000, lambda = 4))
+
+plot_3results &lt;- function(time = 10, time_by = 0.01,  parameters, state){
+  # ODE solver
+  times &lt;- seq(0, time, by = time_by)
+  outc &lt;- ode(unlist(state), times, crGrowth, parameters, method = &quot;vode&quot;, atol = 1e-4, rtol = 1e-4) # vode (variable-coefficient ODE solver), daspk(high order implicit solver for differential-algebraic equations) is best (give positive value)
+
+  # using ggplot to get 3 graphs
+  colnames(outc)
+  class(outc)
+  df_out &lt;- as.data.frame(outc)
+  head(df_out)
+  df_out &lt;- melt(df_out, id.vars = c(&quot;time&quot;))
+  dim(df_out)
+  df_com &lt;- df_out %&gt;% filter(!(variable %in% c(&quot;A&quot;,&quot;I&quot;)))
+  dim(df_com)
+  tail(df_com)
+  df_ai &lt;- df_out %&gt;% filter(variable %in% c(&quot;A&quot;,&quot;I&quot;))
+  dim(df_ai)
+  
+  # plot strain dynamics
+  names(df_com)[2] &lt;- &quot;Strain&quot; 
+  
+  p_strain &lt;- ggplot(df_com, aes(x=time, y=value, color=Strain, group=Strain)) +
+    # geom_point(size=2.5, shape=16) +
+    geom_line(size=1.2)+
+    # scale_colour_gradientn(colours = col_pH(100)) +
+    # scale_color_manual(values=grad_pH) +
+    ylab(&quot;Biomass (OD) \n&quot;) +
+    xlab(&quot;\n Time (hr)&quot;) +
+    # scale_y_continuous(breaks = seq(0,0.3,0.05), limits=c(0, 0.3))+
+    # expand_limits(y=0) +
+    ggtitle(&quot;Consumer-resource model community dynamics \n&quot;) +
+    # label
+    # geom_text(aes(label = round(Ave_NO3_mM,3)), size = 3, vjust = -1.5, family=&quot;serif&quot;, show.legend = FALSE)+
+    mytheme_2d
+    # facet_grid(. ~ Soil) +
+    # theme(strip.background = element_rect(colour=&quot;black&quot;, fill=&quot;white&quot;, size=0.1))
+  # p_strain
+  
+  # plot nitrate, nitrite
+  names(df_ai)[2] &lt;- &quot;Metabolite&quot;
+  df_ai$Metabolite &lt;- ifelse(df_ai$Metabolite == &quot;A&quot;, &quot;Nitrate (NO3-)&quot;, &quot;Nitrite (NO2-)&quot;)
+  
+  p_ai &lt;- ggplot(df_ai, aes(x=time, y=value, color=Metabolite, group=Metabolite)) +
+    # geom_point(size=2.5, shape=16) +
+    geom_line(size=1.2)+
+    # scale_colour_gradientn(colours = col_pH(100)) +
+    scale_color_manual(values=c(&quot;#3958ab&quot;,&quot;#ad4620&quot;)) + ## blue = nitrate, red = nitrite
+    ylab(&quot;Nitrate or Nitrite (mM) \n&quot;) +
+    xlab(&quot;\n Time (hr)&quot;) +
+    # scale_y_continuous(breaks = seq(0,0.3,0.05), limits=c(0, 0.3))+
+    # expand_limits(y=0) +
+    ggtitle(&quot;Metabolite dynamics \n&quot;) +
+    # label
+    # geom_text(aes(label = round(Ave_NO3_mM,3)), size = 3, vjust = -1.5, family=&quot;serif&quot;, show.legend = FALSE)+
+    mytheme_2d
+    # facet_grid(. ~ Soil) +
+    # theme(strip.background = element_rect(colour=&quot;black&quot;, fill=&quot;white&quot;, size=0.1))
+  # p_ai
+  
+  df_i &lt;- df_ai %&gt;% filter(Metabolite == &quot;Nitrite (NO2-)&quot;)
+  p_nitrite &lt;- ggplot(df_i, aes(x=time, y=value, color=Metabolite, group=Metabolite)) +
+    # geom_point(size=2.5, shape=16) +
+    geom_line(size=1.2)+
+    # scale_colour_gradientn(colours = col_pH(100)) +
+    scale_color_manual(values=c(&quot;#ad4620&quot;)) + ## blue = nitrate, red = nitrite
+    ylab(&quot;Nitrite (mM) \n&quot;) +
+    xlab(&quot;\n Time (hr)&quot;) +
+    # scale_y_continuous(breaks = seq(0,0.3,0.05), limits=c(0, 0.3))+
+    # expand_limits(y=0) +
+    ggtitle(&quot;Nitrite close-up dynamics \n&quot;) +
+    # label
+    # geom_text(aes(label = round(Ave_NO3_mM,3)), size = 3, vjust = -1.5, family=&quot;serif&quot;, show.legend = FALSE)+
+    mytheme_2d
+    # facet_grid(. ~ Soil) +
+    # theme(strip.background = element_rect(colour=&quot;black&quot;, fill=&quot;white&quot;, size=0.1))
+  # p_nitrite
+  
+  require(gridExtra)
+  return(grid.arrange(p_strain, p_ai, p_nitrite, nrow=1))
+}
+
+plot_2results &lt;- function(title, time = 10, time_by = 0.01, ode_method = &quot;vode&quot;, parameters, state){
+  # ODE solver
+  times &lt;- seq(0, time, by = time_by)
+  outc &lt;- ode(unlist(state), times, crGrowth, parameters, method = ode_method, atol = 1e-4, rtol = 1e-4) # vode (variable-coefficient ODE solver), daspk(high order implicit solver for differential-algebraic equations) is best (give positive value)
+
+  # using ggplot to get 3 graphs
+  colnames(outc)
+  class(outc)
+  df_out &lt;- as.data.frame(outc)
+  head(df_out)
+  df_out &lt;- melt(df_out, id.vars = c(&quot;time&quot;))
+  dim(df_out)
+  df_com &lt;- df_out %&gt;% filter(!(variable %in% c(&quot;A&quot;,&quot;I&quot;)))
+  dim(df_com)
+  tail(df_com)
+  df_ai &lt;- df_out %&gt;% filter(variable %in% c(&quot;A&quot;,&quot;I&quot;))
+  dim(df_ai)
+  
+  # plot strain dynamics
+  names(df_com)[2] &lt;- &quot;Strain&quot; 
+  
+  p_strain &lt;- ggplot(df_com, aes(x=time, y=value, color=Strain, group=Strain)) +
+    # geom_point(size=2.5, shape=16) +
+    geom_line(size=1.2)+
+    # scale_colour_gradientn(colours = col_pH(100)) +
+    # scale_color_manual(values=grad_pH) +
+    ylab(&quot;Biomass (OD) \n&quot;) +
+    xlab(&quot;\n Time (hr)&quot;) +
+    # scale_y_continuous(breaks = seq(0,0.3,0.05), limits=c(0, 0.3))+
+    # expand_limits(y=0) +
+    ggtitle(paste0(title,&quot; \n&quot;)) +
+    # label
+    # geom_text(aes(label = round(Ave_NO3_mM,3)), size = 3, vjust = -1.5, family=&quot;serif&quot;, show.legend = FALSE)+
+    mytheme_2d
+    # facet_grid(. ~ Soil) +
+    # theme(strip.background = element_rect(colour=&quot;black&quot;, fill=&quot;white&quot;, size=0.1))
+  # p_strain
+  
+  # plot nitrate, nitrite
+  names(df_ai)[2] &lt;- &quot;Metabolite&quot;
+  df_ai$Metabolite &lt;- ifelse(df_ai$Metabolite == &quot;A&quot;, &quot;Nitrate (NO3-)&quot;, &quot;Nitrite (NO2-)&quot;)
+  
+  p_ai &lt;- ggplot(df_ai, aes(x=time, y=value, color=Metabolite, group=Metabolite)) +
+    # geom_point(size=2.5, shape=16) +
+    geom_line(size=1.2)+
+    # scale_colour_gradientn(colours = col_pH(100)) +
+    scale_color_manual(values=c(&quot;#3958ab&quot;,&quot;#ad4620&quot;)) + ## blue = nitrate, red = nitrite
+    ylab(&quot;Nitrate or Nitrite (mM) \n&quot;) +
+    xlab(&quot;\n Time (hr)&quot;) +
+    # scale_y_continuous(breaks = seq(0,0.3,0.05), limits=c(0, 0.3))+
+    # expand_limits(y=0) +
+    ggtitle(&quot;Metabolite dynamics \n&quot;) +
+    # label
+    # geom_text(aes(label = round(Ave_NO3_mM,3)), size = 3, vjust = -1.5, family=&quot;serif&quot;, show.legend = FALSE)+
+    mytheme_2d
+    # facet_grid(. ~ Soil) +
+    # theme(strip.background = element_rect(colour=&quot;black&quot;, fill=&quot;white&quot;, size=0.1))
+  require(gridExtra)
+  return(grid.arrange(p_strain, p_ai, nrow=1))
+}
+
+## testing if the function works
+## as in Karna&#39;s paper, fix kI and kA = 0.01 mM
+## First, use random distribution
+## 10 strains
+## gamI, gamA max is 0.02 (from Karna&#39;s paper)
+## rI, rA max is 15 (from Karna&#39;s paper)
+k = 10 # number of strains in a community
+set.seed(2)
+parameters = list(gamI=runif(k, 0, 0.02), rI =runif(k, 0, 15), gamA= runif(k, 0, 0.02), rA = runif(k, 0, 15), kI = rep(0.01, k), kA = rep(0.01, k))
+# same biomass 1
+state = list(x = rep(0.01,k), A = 2, I = 0)
+# hist(rpois(1000, lambda = 4))
+plot_2results(title = &quot;Consumer resource model: uniformly sampled model parameters&quot;,time = 30, time_by= 0.01,  parameters=parameters, state=state)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-5-1.png" width="1056" style="display: block; margin: auto;" /></p>
+</div>
+<div id="why-is-the-time-scale-so-fast" class="section level2">
+<h2>1.5. Why is the time scale so fast?</h2>
+<pre class="r"><code>k = 3  # number of strains in a community
+parameters = list(gamI = runif(k, 0, 0.02),
+    rI = runif(k, 0, 15), gamA = runif(k,
+        0, 0.02), rA = runif(k, 0, 15), kI = rep(0.01,
+        k), kA = rep(0.01, k))
+# same biomass 1
+state = list(x = rep(1e-04, k), A = 2, I = 0)
+# hist(rpois(1000, lambda = 4))
+plot_2results(title = &quot;Consumer resource model&quot;,
+    time = 30, time_by = 0.01, parameters = parameters,
+    state = state)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-6-1.png" width="1056" style="display: block; margin: auto;" /></p>
+</div>
+<div id="lets-import-karna-sdmsuccinate-defined-media-and-plot-those-dynamics" class="section level2">
+<h2>1.6. Let’s import Karna SDM(succinate defined media) and plot those dynamics</h2>
+<pre class="r"><code>df_karna &lt;- read.csv(&quot;data/consumer_resource_parameters_SDM.csv&quot;)  # succinate defined media 
+names(df_karna)[1] &lt;- &quot;Strain&quot;
+
+head(df_karna)</code></pre>
+<pre><code>  Strain rA_mM.OD.h gamA_OD.mM rI_mM.OD.h gamI_OD.mM
+1  ACM01   5.897555 0.02442641   2.924547 0.01878696
+2  ACM02   6.939172 0.02162215   2.721175 0.01136920
+3  ACM03   6.898489 0.01963414   3.152465 0.01429434
+4  ACM04   5.530593 0.02029729   2.738106 0.02088657
+5  ACM05   6.063978 0.01199931   1.677104 0.01781786
+6  ACV01   8.786990 0.01111173   0.000000 0.00000000</code></pre>
+<pre class="r"><code>df_karna[1, ]</code></pre>
+<pre><code>  Strain rA_mM.OD.h gamA_OD.mM rI_mM.OD.h gamI_OD.mM
+1  ACM01   5.897555 0.02442641   2.924547 0.01878696</code></pre>
+<pre class="r"><code>parameters = c(rA = df_karna[1, 2], gamA = df_karna[1,
+    3], rI = df_karna[1, 4], gamI = df_karna[1,
+    5], kI = 0.01, kA = 0.01)
+state = list(x = 0.01, A = 2, I = 0)
+plot_2results(title = &quot;Consumer resource model (1 strain: ACM01)&quot;,
+    time = 30, time_by = 0.01, parameters = parameters,
+    state = state)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-7-1.png" width="1056" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Another strain
+head(df_karna)</code></pre>
+<pre><code>  Strain rA_mM.OD.h gamA_OD.mM rI_mM.OD.h gamI_OD.mM
+1  ACM01   5.897555 0.02442641   2.924547 0.01878696
+2  ACM02   6.939172 0.02162215   2.721175 0.01136920
+3  ACM03   6.898489 0.01963414   3.152465 0.01429434
+4  ACM04   5.530593 0.02029729   2.738106 0.02088657
+5  ACM05   6.063978 0.01199931   1.677104 0.01781786
+6  ACV01   8.786990 0.01111173   0.000000 0.00000000</code></pre>
+<pre class="r"><code>df_karna[1, ]</code></pre>
+<pre><code>  Strain rA_mM.OD.h gamA_OD.mM rI_mM.OD.h gamI_OD.mM
+1  ACM01   5.897555 0.02442641   2.924547 0.01878696</code></pre>
+<pre class="r"><code>strain_i = 2
+parameters = c(rA = df_karna[strain_i, 2],
+    gamA = df_karna[strain_i, 3], rI = df_karna[strain_i,
+        4], gamI = df_karna[strain_i, 5],
+    kI = 0.01, kA = 0.01)
+state = list(x = 0.01, A = 2, I = 0)
+plot_2results(title = paste0(&quot;Consumer resource model (1 strain:&quot;,
+    df_karna[strain_i, 1], &quot;)&quot;), time = 30,
+    time_by = 0.01, parameters = parameters,
+    state = state)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-7-2.png" width="1056" style="display: block; margin: auto;" /></p>
+</div>
+<div id="validate-with-2-strain-community" class="section level2">
+<h2>1.7. Validate with 2 strain community</h2>
+<p>There is sth wrong with my ode function</p>
+<pre class="r"><code># 2 strain
+head(df_karna)</code></pre>
+<pre><code>  Strain rA_mM.OD.h gamA_OD.mM rI_mM.OD.h gamI_OD.mM
+1  ACM01   5.897555 0.02442641   2.924547 0.01878696
+2  ACM02   6.939172 0.02162215   2.721175 0.01136920
+3  ACM03   6.898489 0.01963414   3.152465 0.01429434
+4  ACM04   5.530593 0.02029729   2.738106 0.02088657
+5  ACM05   6.063978 0.01199931   1.677104 0.01781786
+6  ACV01   8.786990 0.01111173   0.000000 0.00000000</code></pre>
+<pre class="r"><code>df_2strain &lt;- df_karna %&gt;%
+    filter(Strain %in% c(&quot;ACV02&quot;, &quot;AGB01&quot;))
+
+k = 2
+vec_strain = 1:k
+parameters = list(rA = df_2strain[vec_strain,
+    2], gamA = df_2strain[vec_strain, 3],
+    rI = df_2strain[vec_strain, 4], gamI = df_2strain[vec_strain,
+        5], kI = rep(0.01, k), kA = rep(0.01,
+        k))
+state = list(x = c(0.01, 0.01), A = 2, I = 0)
+plot_2results(title = paste0(&quot;Consumer resource model (2 strain:&quot;,
+    df_2strain[1, 1], &quot;+&quot;, df_2strain[2,
+        1], &quot;)&quot;), time = 72, time_by = 0.01,
+    parameters = parameters, state = state,
+    ode_method = &quot;vode&quot;)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-8-1.png" width="1056" style="display: block; margin: auto;" /></p>
+</div>
+<div id="strains-from-real-data" class="section level2">
+<h2>1.8. 10 strains from real data</h2>
+<pre class="r"><code>head(df_karna)</code></pre>
+<pre><code>  Strain rA_mM.OD.h gamA_OD.mM rI_mM.OD.h gamI_OD.mM
+1  ACM01   5.897555 0.02442641   2.924547 0.01878696
+2  ACM02   6.939172 0.02162215   2.721175 0.01136920
+3  ACM03   6.898489 0.01963414   3.152465 0.01429434
+4  ACM04   5.530593 0.02029729   2.738106 0.02088657
+5  ACM05   6.063978 0.01199931   1.677104 0.01781786
+6  ACV01   8.786990 0.01111173   0.000000 0.00000000</code></pre>
+<pre class="r"><code>dim(df_karna)</code></pre>
+<pre><code>[1] 79  5</code></pre>
+<pre class="r"><code># randomly pick k=10 strains
+k = 10
+set.seed(1)
+vec_strain = sample(1:nrow(df_karna), k,
+    replace = F)
+
+parameters = list(rA = df_karna[vec_strain,
+    2], gamA = df_karna[vec_strain, 3], rI = df_karna[vec_strain,
+    4], gamI = df_karna[vec_strain, 5], kI = rep(0.01,
+    k), kA = rep(0.01, k))
+# all strains will start from OD600 of
+# 0.01
+state = list(x = rep(0.01, k), A = 2, I = 0)
+plot_2results(title = paste0(&quot;Consumer resource model (&quot;,
+    k, &quot; Karna strains)&quot;), time = 30, time_by = 0.01,
+    parameters = parameters, state = state)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-9-1.png" width="1056" style="display: block; margin: auto;" /></p>
+</div>
+<div id="strains-from-real-data-parameters" class="section level2">
+<h2>1.9. 5 strains from real data parameters</h2>
+<pre class="r"><code>head(df_karna)</code></pre>
+<pre><code>  Strain rA_mM.OD.h gamA_OD.mM rI_mM.OD.h gamI_OD.mM
+1  ACM01   5.897555 0.02442641   2.924547 0.01878696
+2  ACM02   6.939172 0.02162215   2.721175 0.01136920
+3  ACM03   6.898489 0.01963414   3.152465 0.01429434
+4  ACM04   5.530593 0.02029729   2.738106 0.02088657
+5  ACM05   6.063978 0.01199931   1.677104 0.01781786
+6  ACV01   8.786990 0.01111173   0.000000 0.00000000</code></pre>
+<pre class="r"><code>dim(df_karna)</code></pre>
+<pre><code>[1] 79  5</code></pre>
+<pre class="r"><code># randomly pick k=10 strains
+k = 5
+set.seed(1)
+vec_strain = sample(1:nrow(df_karna), k,
+    replace = F)
+
+parameters = list(rA = df_karna[vec_strain,
+    2], gamA = df_karna[vec_strain, 3], rI = df_karna[vec_strain,
+    4], gamI = df_karna[vec_strain, 5], kI = rep(0.01,
+    k), kA = rep(0.01, k))
+# all strains will start from OD600 of
+# 0.01
+state = list(x = rep(0.01, k), A = 2, I = 0)
+plot_2results(title = paste0(&quot;Consumer resource model (&quot;,
+    k, &quot; Karna strains)&quot;), time = 30, time_by = 0.01,
+    parameters = parameters, state = state)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-10-1.png" width="1056" style="display: block; margin: auto;" /></p>
+</div>
+<div id="strains-from-randomly-sampled-parameters" class="section level2">
+<h2>1.10. 5 strains from randomly sampled parameters</h2>
+<pre class="r"><code>k = 5  # number of strains in a community
+set.seed(2)
+parameters = list(gamI = runif(k, 0, 0.02),
+    rI = runif(k, 0, 15), gamA = runif(k,
+        0, 0.02), rA = runif(k, 0, 15), kI = rep(0.01,
+        k), kA = rep(0.01, k))
+# same biomass 1
+state = list(x = rep(0.01, k), A = 2, I = 0)
+# hist(rpois(1000, lambda = 4))
+plot_2results(title = &quot;Consumer resource model: uniformly sampled model parameters&quot;,
+    time = 30, time_by = 0.01, parameters = parameters,
+    state = state)</code></pre>
+<p><img src="figure/220207_pH_simulation_1st_trial.Rmd/unnamed-chunk-11-1.png" width="1056" style="display: block; margin: auto;" /></p>
+</div>
+<div id="now-simulate-ph-perturbation" class="section level2">
+<h2>2. Now simulate pH perturbation</h2>
+<ol style="list-style-type: decimal">
+<li>First, simulate rI_i dependent on pH (gaussian distribution of mean = opt_pH)</li>
+<li>Second, construct soil community of pH 7, where relative abundance of strains with opt_pH is high.</li>
+<li>Third, perturb the pH and see how it changes.</li>
+</ol>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.0.3 (2020-10-10)
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+Running under: Windows 10 x64 (build 19042)
+
+Matrix products: default
+
+locale:
+[1] LC_COLLATE=English_United States.1252 
+[2] LC_CTYPE=English_United States.1252   
+[3] LC_MONETARY=English_United States.1252
+[4] LC_NUMERIC=C                          
+[5] LC_TIME=English_United States.1252    
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] gridExtra_2.3      rmarkdown_2.9      deSolve_1.28       ggpubr_0.4.0      
+ [5] ggrepel_0.9.1      ape_5.5            openxlsx_4.2.3     devtools_2.4.0    
+ [9] usethis_2.0.1      gtools_3.8.2       reshape2_1.4.4     readxl_1.3.1      
+[13] magrittr_2.0.1     forcats_0.5.1      stringr_1.4.0      purrr_0.3.4       
+[17] readr_1.4.0        tidyr_1.1.3        tibble_3.0.4       tidyverse_1.3.1   
+[21] vegan_2.5-7        lattice_0.20-41    permute_0.9-5      RColorBrewer_1.1-2
+[25] ggplot2_3.3.5      dplyr_1.0.5        knitr_1.37         workflowr_1.6.2   
+
+loaded via a namespace (and not attached):
+ [1] colorspace_2.0-0  ggsignif_0.6.2    ellipsis_0.3.2    rio_0.5.27       
+ [5] rprojroot_2.0.2   fs_1.5.0          rstudioapi_0.13   farver_2.1.0     
+ [9] remotes_2.4.0     fansi_0.4.2       lubridate_1.7.10  xml2_1.3.2       
+[13] splines_4.0.3     cachem_1.0.4      pkgload_1.2.1     jsonlite_1.7.2   
+[17] broom_0.7.9       cluster_2.1.0     dbplyr_2.1.1      compiler_4.0.3   
+[21] httr_1.4.2        backports_1.2.1   assertthat_0.2.1  Matrix_1.2-18    
+[25] fastmap_1.1.0     cli_3.0.1         formatR_1.11      later_1.2.0      
+[29] htmltools_0.5.1.1 prettyunits_1.1.1 tools_4.0.3       gtable_0.3.0     
+[33] glue_1.4.2        Rcpp_1.0.5        carData_3.0-4     cellranger_1.1.0 
+[37] jquerylib_0.1.4   vctrs_0.3.8       nlme_3.1-149      xfun_0.29        
+[41] ps_1.6.0          testthat_3.0.2    rvest_1.0.1       lifecycle_1.0.0  
+[45] rstatix_0.7.0     MASS_7.3-53       scales_1.1.1      hms_1.1.0        
+[49] promises_1.2.0.1  parallel_4.0.3    yaml_2.2.1        curl_4.3.2       
+[53] memoise_2.0.0     sass_0.4.0        stringi_1.5.3     highr_0.9        
+[57] desc_1.3.0        pkgbuild_1.2.0    zip_2.1.1         rlang_0.4.10     
+[61] pkgconfig_2.0.3   evaluate_0.14     labeling_0.4.2    tidyselect_1.1.1 
+[65] processx_3.5.1    plyr_1.8.6        R6_2.5.0          generics_0.1.0   
+[69] DBI_1.1.1         pillar_1.6.0      haven_2.4.1       whisker_0.4      
+[73] foreign_0.8-80    withr_2.4.2       mgcv_1.8-33       abind_1.4-5      
+[77] modelr_0.1.8      crayon_1.4.1      car_3.0-11        utf8_1.1.4       
+[81] grid_4.0.3        data.table_1.14.0 callr_3.7.0       git2r_0.28.0     
+[85] reprex_2.0.0      digest_0.6.27     httpuv_1.6.0      munsell_0.5.0    
+[89] bslib_0.2.5.1     sessioninfo_1.1.1</code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
