@@ -8,5 +8,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-This is the simulation workspace.
+This is the simulation workspace. \
+
 * [220207_pH_simulation_1st_trial](220207_pH_simulation_1st_trial.html)
