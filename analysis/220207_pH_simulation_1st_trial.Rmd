@@ -1399,12 +1399,294 @@ plot_perturbation_auc(vec_opt_pH, vec_max_rI, vec_max_rA, pH_from = 7, pH_pertur
 #   annotate("text",x=7,y=0.5, label= paste0("y = ", round(coef(fit.no3)[[1]],3), "+", round(coef(fit.no3)[[2]],3),"x+",round(coef(fit.no3)[[3]],3), "x^2", ",  R^2: ", round(summary(fit.no3)$r.squared,3)), color = "maroon2") +
 #   mytheme_2d
 
+```
+
+
+## 3. [Ecological drivers] Perturb the soil pH: by Ecology
+The previous simulation relied on each individual strain's physiology. 
+Now we will simulate the pH perturbation in a slightly different method.
+(1) Strain level
+first we will fix the rI, rA of 15 strains. They will have the same max_height of rI, rA curve at opt_pH.
+(2) Soil level
+First community and the second community will have the same 15 strains. But their relative abundance will be different. First community will have a gaussian distribution of relative abundance with mean = opt_pH = 7. Second community will have uniform distribution of the relative abundance. The total biomass of both community will be same, 0.1 OD.
+
+## 3.1. Set up soil community
+```{r}
+
+dev.off()
+
+# function
+gaussian_function <- function(x, std, mean, max_height=0.3989423){
+  factor = max_height * std*sqrt(2*pi)
+  return(factor*(1/ (std * sqrt(2*pi)))*exp((-0.5)*( (x - mean) / std)^2))
+}
+
+## 15 strains, standard deviation 2
+set.seed(1)
+k = 15 # number of strains in a community
+vec_opt_pH = seq(3, 12, length=15)
+
+## same max_height of rI, rA = 10
+vec_max_rI <- rep(10, 15)
+vec_max_rA <- rep(10, 15)
+
+## plot rI and rA
+x <- seq(0, 14, by = 0.01)
+plot(x, gaussian_function(x, mean=vec_opt_pH[1], std=2, max_height= vec_max_rI[1]), xlab = "pH",ylab = "rI_i or rA_i", col='blue', type = "l",lty = 1, pch=19,lwd=1, main = "Simulating rI & rA parameter of strains", ylim=c(0,12))
+
+for (i in 2:k){
+  lines(x, gaussian_function(x, mean=vec_opt_pH[i], std=2, max_height= vec_max_rI[i]), col='blue')
+}
+
+## relative abundance
+## of first community
+opt_pH = 7
+rel_abun1 <- gaussian_function(vec_opt_pH, mean=opt_pH, std=2, max_height= 10)
+rel_abun1 <- rel_abun1/sum(rel_abun1)
+abs_abun1 <- rel_abun1/10 # sum to 0.1 OD
+sum(abs_abun1) # 0.1 OD
+
+## of second community
+rel_abun2 = rep(1/k, k)
+abs_abun2 = rep(0.1/k, k)
+sum(abs_abun2)
+
+# plot relative abundance
+plot(vec_opt_pH, rel_abun1, xlab = "optimal pH", ylab = "Relative abundance", col='red', type = "l",lty = 1, pch=19,lwd=1, main = "Relative abundance of strains with varying optimal pH", ylim=c(0,0.3))
+lines(vec_opt_pH, rel_abun2, lty = 1, pch=19,lwd=1, col='blue')
+legend(7, 0.25, legend=c('Gaussian community', 'Uniform community'), col=c("Red", "Blue"), lty=c(1,1), cex=0.8, box.lty=0)
+
+
+# plot dynamics
+## rI when current pH is 7
+vec_rI = gaussian_function(x=7, mean=vec_opt_pH, std=2, max_height=vec_max_rI)
+length(vec_rI)
+vec_rA = gaussian_function(x=7, mean=vec_opt_pH, std=2, max_height=vec_max_rA)
+length(vec_rA)
+
+## Gaussian community
+k=15
+set.seed(1)
+vec_gamma = runif(k, 0, 0.02)
+parameter_1 = list(gamI=vec_gamma, rI =vec_rI, gamA= vec_gamma, rA = vec_rA, kI = rep(0.01, k), kA = rep(0.01, k))
+# all strains will start from OD600 of 0.01
+state_1 = list(x = abs_abun1, A = 2, I = 0)
+plot_2results(title = paste0("Gaussian Community dynamics at natural state, pH=7"),time = 5, time_by = 0.01, parameters=parameter_1, state=state_1, ode_method = "vode")
+
+## Uniform community
+k=15
+set.seed(1)
+vec_gamma = runif(k, 0, 0.02)
+parameter_1 = list(gamI=vec_gamma, rI =vec_rI, gamA= vec_gamma, rA = vec_rA, kI = rep(0.01, k), kA = rep(0.01, k))
+# all strains will start from OD600 of 0.01
+state_1 = list(x = abs_abun2, A = 2, I = 0)
+plot_2results(title = paste0("Uniform Community dynamics at natural state, pH=7"),time = 5, time_by = 0.01, parameters=parameter_1, state=state_1, ode_method = "vode")
+
+```
+
+## 3.2. pH Perturbation simulation
+
+```{r}
+# function modify
+plot_perturbation_rel_abun <- function(vec_opt_pH, vec_max_rI, vec_max_rA, rel_abun, pH_from = 7, pH_perturb = c(-4:-1, 1:3), gauss_std = 3, vec_met =c("A","I"), title, time = 10, time_by = 0.01, ode_method = "vode"){
+  # ODE solver
+  k = length(vec_opt_pH)
+  set.seed(4)
+  vec_gamma = runif(k, 0, 0.02)
+  vec_rI = gaussian_function(x= pH_from, mean=vec_opt_pH, std= gauss_std, max_height=vec_max_rI)
+  vec_rA = gaussian_function(x= pH_from, mean=vec_opt_pH, std= gauss_std, max_height=vec_max_rA)
+  
+  parameter_1 = list(gamI=vec_gamma, rI =vec_rI, gamA= vec_gamma, rA = vec_rA, kI = rep(0.01, k), kA = rep(0.01, k))
+  state_1 = list(x = rel_abun, A = 2, I = 0)
+  print(rel_abun)
+
+  times <- seq(0, time, by = time_by)
+  outc <- ode(unlist(state_1), times, crGrowth, parameter_1, method = ode_method, atol = 1e-4, rtol = 1e-4) # vode (variable-coefficient ODE solver), daspk(high order implicit solver for differential-algebraic equations) is best (give positive value)
+  df_out <- as.data.frame(outc)
+  df_out$pH <- pH_from
+  dim(df_out)
+  
+  for (i in pH_perturb){
+    pH_to = pH_from + i
+    print(pH_to)
+    vec_rI = gaussian_function(x= pH_to, mean=vec_opt_pH, std= gauss_std, max_height=vec_max_rI)
+    # print(tail(vec_rI))
+    # print(tail(vec_rA))
+    vec_rA = gaussian_function(x= pH_to, mean=vec_opt_pH, std= gauss_std, max_height=vec_max_rA)
+    parameters = list(gamI=vec_gamma, rI =vec_rI, gamA= vec_gamma, rA = vec_rA, kI = rep(0.01, k), kA = rep(0.01, k))
+    # print(parameter$rI)
+    states = list(x = rel_abun, A = 2, I = 0)
+    outc <- ode(unlist(states), times, crGrowth, parameters, method = ode_method, atol = 1e-4, rtol = 1e-4) # vode (variable-coefficient ODE solver), daspk(high order implicit solver for differential-algebraic equations) is best (give positive value)
+    df_add <- as.data.frame(outc)
+    df_add$pH <- pH_to
+    df_out <- rbind(df_out,df_add)
+  }
+  colnames(df_out)
+  df_out <- melt(df_out, id.vars = c("time", "pH"))
+  tail(df_out)
+  dim(df_out)
+  df_ai <- df_out %>% filter(variable %in% vec_met) # use 1 or both
+  dim(df_ai)
+  colnames(df_ai)
+  
+  # plot nitrate, nitrite
+  names(df_ai)[3] <- "Metabolite" # variable -> Metabolite
+  colnames(df_ai)
+  
+  df_ai$Metabolite <- ifelse(df_ai$Metabolite == "A", "Nitrate (NO3-)", "Nitrite (NO2-)")
+  colnames(df_ai)
+  head(df_ai)
+  df_ai$value <- ifelse(df_ai$value < 0, 0, df_ai$value)
+  
+  # pH color
+  col_pH <- colorRampPalette(c("purple",'red',"gold"))
+
+  library(colorRamps)
+  df_ai %>% select(Metabolite) %>% unique()
+  df_ai %>% select(pH) %>% unique()
+
+  ggplot(df_ai, aes(x=time, y=value, color=pH, group=pH)) +
+    # geom_point(size=2.5, shape=16) +
+    geom_line(size=1.2)+
+    # scale_colour_gradientn(colours = col_pH(100)) +
+    # scale_color_manual(values=c("#3958ab","#ad4620")) + ## blue = nitrate, red = nitrite
+    scale_colour_gradientn(colours = col_pH(100)) +
+    ylab("Nitrate or Nitrite (mM) \n") +
+    xlab("\n Time (hr)") +
+    scale_y_continuous(breaks = seq(0,2,0.25), limits=c(0, 2))+
+    # expand_limits(y=0) +
+    ggtitle(paste0(title," \n")) +
+    # label
+    # geom_text(aes(label = round(Ave_NO3_mM,3)), size = 3, vjust = -1.5, family="serif", show.legend = FALSE)+
+    mytheme_2d +
+    facet_grid(. ~ Metabolite) +
+    theme(strip.background = element_rect(colour="black", fill="white", size=0.1))
+}
+
+
+plot_perturbation_rel_abun_auc <- function(vec_opt_pH, vec_max_rI, vec_max_rA, rel_abun, pH_from = 7, pH_perturb = c(-4:-1, 1:3), gauss_std = 3, vec_met =c("A","I"), title, time = 10, time_by = 0.01, ode_method = "vode", annotate_x, annotate_y){
+  # ODE solver
+  k = length(vec_opt_pH)
+  set.seed(4)
+  vec_gamma = runif(k, 0, 0.02)
+  vec_rI = gaussian_function(x= pH_from, mean=vec_opt_pH, std= gauss_std, max_height=vec_max_rI)
+  vec_rA = gaussian_function(x= pH_from, mean=vec_opt_pH, std= gauss_std, max_height=vec_max_rA)
+  
+  parameter_1 = list(gamI=vec_gamma, rI =vec_rI, gamA= vec_gamma, rA = vec_rA, kI = rep(0.01, k), kA = rep(0.01, k))
+  state_1 = list(x = rel_abun, A = 2, I = 0)
+  print(rel_abun)
+
+  times <- seq(0, time, by = time_by)
+  outc <- ode(unlist(state_1), times, crGrowth, parameter_1, method = ode_method, atol = 1e-4, rtol = 1e-4) # vode (variable-coefficient ODE solver), daspk(high order implicit solver for differential-algebraic equations) is best (give positive value)
+  df_out <- as.data.frame(outc)
+  df_out$pH <- pH_from
+  dim(df_out)
+  
+  for (i in pH_perturb){
+    pH_to = pH_from + i
+    print(pH_to)
+    vec_rI = gaussian_function(x= pH_to, mean=vec_opt_pH, std= gauss_std, max_height=vec_max_rI)
+    # print(tail(vec_rI))
+    # print(tail(vec_rA))
+    vec_rA = gaussian_function(x= pH_to, mean=vec_opt_pH, std= gauss_std, max_height=vec_max_rA)
+    parameters = list(gamI=vec_gamma, rI =vec_rI, gamA= vec_gamma, rA = vec_rA, kI = rep(0.01, k), kA = rep(0.01, k))
+    # print(parameter$rI)
+    states = list(x = rel_abun, A = 2, I = 0)
+    outc <- ode(unlist(states), times, crGrowth, parameters, method = ode_method, atol = 1e-4, rtol = 1e-4) # vode (variable-coefficient ODE solver), daspk(high order implicit solver for differential-algebraic equations) is best (give positive value)
+    df_add <- as.data.frame(outc)
+    df_add$pH <- pH_to
+    df_out <- rbind(df_out,df_add)
+  }
+  colnames(df_out)
+  df_out <- melt(df_out, id.vars = c("time", "pH"))
+  tail(df_out)
+  dim(df_out)
+  df_ai <- df_out %>% filter(variable %in% vec_met) # use 1 or both
+  dim(df_ai)
+  colnames(df_ai)
+  
+  # plot nitrate, nitrite
+  names(df_ai)[3] <- "Metabolite" # variable -> Metabolite
+  colnames(df_ai)
+  
+  df_ai$Metabolite <- ifelse(df_ai$Metabolite == "A", "Nitrate (NO3-)", "Nitrite (NO2-)")
+  colnames(df_ai)
+  head(df_ai)
+  df_ai$value <- ifelse(df_ai$value < 0, 0, df_ai$value)
+  
+  require(pracma)
+  df_a <- df_ai %>% filter(Metabolite =="Nitrate (NO3-)")
+  colnames(df_a)
+  df_corr <- df_a %>% group_by(pH) %>% summarize(auc = trapz(time, value)) %>% ungroup()
+  
+  plot(df_corr$pH, df_corr$auc)
+  
+  df_corr$pH_2 <- (df_corr$pH)^2
+  fit.no3 <- lm(auc ~ pH + pH_2, df_corr)
+  summary(fit.no3)
+  
+  perturbpH <- seq(2, 13, 0.1)
+  aucPredict <- predict(fit.no3,list(pH=perturbpH, pH_2=perturbpH^2))
+  df_auc_quad <- data.frame(pH = perturbpH, Time_hours = aucPredict)
+  plot(perturbpH, aucPredict)
+  
+  # (1) Plot fitted linear regression line
+  ggplot(df_corr, aes(x=pH, y=auc)) +
+    geom_point(size=2.5, shape=16, color = "brown") +
+    # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) +
+    # geom_errorbar(aes(ymin=NO3_mM - sd_NO3_mM, ymax=NO3_mM + sd_NO3_mM), width=.05)+
+    # scale_color_brewer(palette='Set2') +
+    # scale_color_manual(values = c("maroon2","deepskyblue4"))+
+    xlab("perturbed pH \n") +
+    ylab("\n Area under curve (NO3-)") +
+    # scale_x_continuous(breaks = seq(0,16,1), limits=c(0, 16))+
+    #scale_y_continuous(breaks = seq(0,0.3,0.05), limits=c(0, 0.3))+
+    # geom_text_repel(aes(label = round(NO3_mM,3)), size = 3,family="serif", show.legend = FALSE)+
+    ggtitle(paste0(title," \n")) +
+    # geom_abline(slope = 1, intercept=0, show.legend = "y=x")+
+    # regression line
+    geom_line(data = df_auc_quad, aes(x = pH, y = Time_hours), color = "maroon2", size = 1) +
+    # show equation
+    annotate("text",x= annotate_x,y=annotate_y, label= paste0("y = ", round(coef(fit.no3)[[1]],3), "+", round(coef(fit.no3)[[2]],3),"x+",round(coef(fit.no3)[[3]],3), "x^2", ",  R^2: ", round(summary(fit.no3)$r.squared,3)), color = "maroon2") +
+    mytheme_2d
+}
+
+
+
+  
+
+  
+  
+  
+  
+  
+## Gaussian community
+plot_perturbation_rel_abun(vec_opt_pH, vec_max_rI, vec_max_rA, rel_abun = rel_abun1, pH_from = 7, pH_perturb = c(seq(-5, -0.5, by =0.5), seq(0.5, 5, by =0.5)), gauss_std = 2, vec_met =c("A","I"), title = paste0("[Gaussian community] Simulated Area under curve NO3- (n=",k,")"), time = 10, time_by = 0.01, ode_method = "vode")
+
+## Gaussian community - AUC
+plot_perturbation_rel_abun_auc(vec_opt_pH, vec_max_rI, vec_max_rA, rel_abun = rel_abun1, pH_from = 7, pH_perturb = c(seq(-5, -0.5, by =0.5), seq(0.5, 5, by =0.5)), gauss_std = 2, vec_met =c("A","I"), title = paste0("[Gaussian community] Simulated Area under curve NO3- (n=",k,")"), time = 10, time_by = 0.01, ode_method = "vode", annotate_x = 7.5, annotate_y = 3.5)
+
+## Uniform community
+plot_perturbation_rel_abun(vec_opt_pH, vec_max_rI, vec_max_rA, rel_abun = rel_abun2, pH_from = 7, pH_perturb = c(seq(-5, -0.5, by =0.5), seq(0.5, 5, by =0.5)), gauss_std = 2, vec_met =c("A","I"), title = paste0("[Uniform community] Simulated Area under curve NO3- (n=",k,")"), time = 10, time_by = 0.01, ode_method = "vode")
+
+## Uniform community - AUC
+plot_perturbation_rel_abun_auc(vec_opt_pH, vec_max_rI, vec_max_rA, rel_abun = rel_abun2, pH_from = 7, pH_perturb = c(seq(-5, -0.5, by =0.5), seq(0.5, 5, by =0.5)), gauss_std = 2, vec_met =c("A","I"), title = paste0("[Uniform community] Simulated Area under curve NO3- (n=",k,")"), time = 10, time_by = 0.01, ode_method = "vode", annotate_x = 7.5, annotate_y = 3.5)
+
+
+
+
+
+
+
 
 
 
 
 
 ```
+
+
+
 
 
 
